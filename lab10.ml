@@ -41,22 +41,22 @@ will often prove useful.
     the module's location. If you have trouble accessing `Absbook`
     functions, try the commands in the following example:
 
-	% ocaml
-		OCaml version 4.11.1
+        % ocaml
+                OCaml version 4.11.1
 
-	# #use "topfind" ;;
-	...
-	- : unit = ()
-	# #require "CS51Utils" ;;
-	...
-	# open CS51Utils ;;
-	# Absbook.call_timed ;;
-	- : ?count:int -> ('a -> 'b) -> 'a -> 'b * float = <fun>
+        # #use "topfind" ;;
+        ...
+        - : unit = ()
+        # #require "CS51Utils" ;;
+        ...
+        # open CS51Utils ;;
+        # Absbook.call_timed ;;
+        - : ?count:int -> ('a -> 'b) -> 'a -> 'b * float = <fun>
 
 ......................................................................
 Exercise 1: Write a function `random_list` that creates a list of a
-specified length of random integers between 0 and 999. Hint: You may
-find the `List.init` function to be helpful.
+specified length of random integers between 0 and 999 inclusive. Hint:
+You may find the `List.init` function to be helpful.
 ....................................................................*)
 
 let random_list (length : int) : int list =
@@ -71,7 +71,7 @@ indicating how long in seconds the sort takes. Hint: You may find the
 
 let time_sort (sort : int list -> int list) (lst : int list) : float =
   let _result, time = Absbook.call_timed sort lst in
-  time ;;
+  time /. 1000. ;;
 
 (* We've provided implementations of merge sort and insertion sort
 here as modules satisfying the `SORT` signature so that you have some
@@ -155,7 +155,7 @@ implementation of merge and insertion sort above.
 (* A first attempt to fill in the table may have included running the
    following code:
 
-     time_sort (InsertSort.sort ( < )) (random_list 10);;
+     time_sort (InsertSort.sort ( < )) (random_list 10) ;;
      time_sort (InsertSort.sort ( < )) (random_list 1000) ;;
      time_sort (MergeSort.sort  ( < )) (random_list 10) ;;
      time_sort (MergeSort.sort  ( < )) (random_list 1000) ;;
@@ -183,14 +183,14 @@ implementation of merge and insertion sort above.
                    |    List length 10    |  List length 1000
                    |    Time (seconds)    |  Time (seconds)
    ------------------------------------------------------------
-   Insertion Sort  |    0.00000215        |   0.0107
+   Insertion Sort  |    0.00000286        |   0.01072379
    ------------------------------------------------------------
-   Merge Sort      |    0.00000405        |   0.000967
+   Merge Sort      |    0.00000405        |   0.00125098
    ------------------------------------------------------------
 
    In summary, merge sort is a little slower on the short list but
    much faster on the long list, consistent with its better
-   asymptotic complexity.
+   asymptotic complexity. (You're numbers may vary of course.)
 
    Generally when running experiments, it is good practice to run
    more than one trial. We can do this for our timing as well to
@@ -206,8 +206,7 @@ implementation of merge and insertion sort above.
        let average (lst : float list) =
            (List.fold_left ( +. ) 0. lst) 
            /. float_of_int (List.length lst) in
-       List.map (fun _ -> timer sort input)
-                (Absbook.range 1 num)
+       List.init num (fun _ -> timer sort input)
        |> average ;;
 
    We can then find the average of 50 trials for each list length.
@@ -221,9 +220,9 @@ implementation of merge and insertion sort above.
                    |    List length 10    |  List length 1000
                    |    Time (seconds)    |  Time (seconds)
    ------------------------------------------------------------
-   Insertion Sort  |    0.00000178        |   0.00821
+   Insertion Sort  |    0.00000180        |   0.00995549
    ------------------------------------------------------------
-   Merge Sort      |    0.00000198        |   0.000827
+   Merge Sort      |    0.00000312        |   0.00090328
    ------------------------------------------------------------
  *)
 
@@ -303,8 +302,8 @@ amount of time to merge sort's performance.
 
 Let's actually do this and test the results empirically!
 
-Here is a version of merge sort that inserts a small delay (.05
-seconds), to simulate a version of the function with the same
+Here is a version of merge sort that inserts a small constant delay
+(.05 seconds), to simulate a version of the function with the same
 asymptotic complexity but that is a constant amount slower. *)
 
 module DelayMergeSort : SORT =
@@ -341,7 +340,7 @@ true below. *)
    
 let exercise6 = 10000 ;;
 
-(* Big-O also allows us to disregard constant multiplicative
+(* Big-O also allows us to disregard constant *multiplicative*
 factors. In the next exercise, we work with a version of MergeSort
 that sorts a given list twice rather than once.  However long
 MergeSort takes, DoubleMergeSort will thus take twice as long. *)
@@ -540,9 +539,9 @@ T_insert(n) = max(k_1 + T_insert(n-1), k_2) ≤ k_1 + T_insert(n-1) + k_2
 We express these equations with the following Ocaml function. Rather
 than write two equations, as you might on paper, we write the base
 case and recursive case as branches of an if/then/else
-statement. Although the recurrence equations have two constants (c and
-k), we use the single OCaml variable `k` to play both of those roles.
-Please follow that format in all of the following exercises.
+expression. Although the recurrence equations have two constants (c
+and k), we use the single OCaml variable `k` to play both of those
+roles.  Please follow that format in all of the following exercises.
 ....................................................................*)
   
 let rec time_insert (n : int) : int =
@@ -617,12 +616,12 @@ let rec time_divider (n : int) : int =
      T_div(n) = k + T_div(n / 2)
               = k + k + T_div(n / 4)
               = k + k + K + T_div(n / 8)
-              = k + k + k + ... + T_div(0)
+              = k + k + k + ... + T_div(1)
               = k + k + k + ... + q
 
    How many k's will we have in the end?  We will have as many k's as
-   times that we divide n by 2 before hitting 0. This is approximately
-   log base 2 of n.
+   times that we divide n by 2 before hitting 1 (or 0). This is
+   approximately log base 2 of n.
 
      Thus, T_div(n) = k*log(n) + q
                     = O(log(n))
@@ -675,9 +674,8 @@ let rec time_split (n : int) : int =
 
    T_split(n) = k * (n / 2) + q
 
-   However, when discussing in big-O, this division by
-   two may be disregarded, and we have that T_split is O(n).
- *)
+   However, with regards to big-O, this division by two can be
+   disregarded, and we have that T_split is O(n).  *)
 
 let split_complexity () : complexity =
   Linear ;;
@@ -689,7 +687,7 @@ let rec time_find_min (n : int) : int =
 (* When unfolding `find_min`, you may have recognized the "Divide and
    Conquer" pattern discussed in the reading.  You also had to know
    the time complexity of `split` to determine the time complexity of
-   find min. Often, it can be useful to consider each helper
+   `find_min`. Often, it can be useful to consider each helper
    function's complexity separately. You can then use the derived
    closed form solutions when calculating the time complexity of the
    larger function.
@@ -708,8 +706,8 @@ let rec time_find_min (n : int) : int =
    will be summed log(n) times, giving us a k * log(n) term in our
    closed form solution.
 
-   Splitting adds two terms each time, one constant (q), and one
-   linear in the size of the list being split (k * n / 2). The linear
+   Splitting adds two terms each time, one that is constant (q), and one
+   that is linear in the size of the list being split (k * n / 2). The linear
    term stays a consistent k * n / 2. Though we make more splits, the
    size of the list halves, and these forces cancel each other
    out. (Ignoring for a moment the constant in the split closed
@@ -745,7 +743,7 @@ let rec time_find_min (n : int) : int =
 
    To find the closest big O class, we need only look at the largest
    term. This term is (k / 2) * n log(n). We can drop constant factors,
-   finding that find_min is O(n log(n))
+   finding that `find_min` is O(n log(n))
  *)
 
 let find_min_complexity () : complexity =
@@ -760,7 +758,7 @@ Consider the three implementations of multiplication below:
 let sign_product (x : int) (y : int) : int =
     let sign (x : int) : int =
         if x >= 0 then 1 else ~-1 in
-    (sign x) * (sign y);;
+    (sign x) * (sign y) ;;
 
 (* 1. Repeated addition simply adds `x` to itself `y` times. To
 multiply two n-digit numbers together using this algorithm takes time
@@ -844,13 +842,13 @@ let time_multiply (mult : int -> int -> int)
   let _result, time = Absbook.call_timed
                         (fun (x, y) -> mult x y)
                         (x, y) in
-  time ;;
+  time /. 1000. ;;
 
 (*....................................................................
 Exercise 14: Fill in the table below:
 ....................................................................*)
    
-(* Here's what we found. Of course, your results might vary a bit.
+(* Here's what we found. Of course, your results might vary.
 
                        |    15 * 50           |  1241342345 *
                        |                      |  3237461243
