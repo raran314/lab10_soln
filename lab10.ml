@@ -131,7 +131,7 @@ module MergeSort : SORT =
 (*....................................................................
 Exercise 3: How many functions does the `InsertionSort` module
 provide? How many functions does the `MergeSort` module
-provide. Define the variables below accordingly (replacing the `-1`
+provide? Define the variables below accordingly (replacing the `-1`
 values).
 ....................................................................*)
 
@@ -140,7 +140,7 @@ values).
        sort : ('a -> 'a -> bool) -> 'a list -> 'a list
    
    and *no other functions*, as specified by the SORT signature. In
-   particular, the functions insert, split, and merge are not
+   particular, the functions `insert`, `split`, and `merge` are not
    accessible outside the module. *)
 
 let insertion_sort_provides : int = 1 ;;
@@ -148,8 +148,8 @@ let merge_sort_provides : int = 1 ;;
 
 (*....................................................................
 Exercise 4: Compare the time it takes for merge sort and insertion
-sort to run on lists of random ints of length 10 and 1000. We've
-included an implementation of merge and insertion sort below.
+sort to run on lists of random ints of length 10 and 1000. Use the
+implementation of merge and insertion sort above.
 ....................................................................*)
   
 (* A first attempt to fill in the table may have included running the
